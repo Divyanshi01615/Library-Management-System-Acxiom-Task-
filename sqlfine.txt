@@ -1,0 +1,69 @@
+CREATE DATABASE library_management;
+USE library_management;
+---------------------------------------------------------------
+CREATE TABLE admins (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL, -- Hashed Password
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+Insert Sample Admin Data
+INSERT INTO admins (username, email, password) 
+VALUES ('admin', 'admin@example.com', PASSWORD('admin123'));
+---------------------------------------------------------------------
+CREATE TABLE students (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL, -- Hashed Password
+    membership_type ENUM('3 months', '6 months', '1 year') DEFAULT '6 months',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    profile_pic VARCHAR(255) DEFAULT 'uploads/default_profile.jpg'
+);
+INSERT INTO students (name, email, password, membership_type)
+VALUES 
+('Divyanshi Singh Bhadauriya', 'singhbhadauriyadivyanshi@gmail.com', PASSWORD('divyanshi@0786'), '6 months'),
+('Rahul Sharma', 'rahul.sharma@gmail.com', PASSWORD('rahul123'), '1 year');
+----------------------------------------------------------------------------
+CREATE TABLE books (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    author VARCHAR(100) NOT NULL,
+    genre VARCHAR(50),
+    available INT DEFAULT 1, -- 1 = Available, 0 = Issued
+    availability ENUM('Available', 'Issued') DEFAULT 'Available'
+);
+Insert Sample Books
+INSERT INTO books (title, author, genre, available, availability)
+VALUES 
+('The Great Gatsby', 'F. Scott Fitzgerald', 'Fiction', 1, 'Available'),
+('To Kill a Mockingbird', 'Harper Lee', 'Classic', 1, 'Available');
+-------------------------------------------------------------------------------------
+CREATE TABLE book_issues (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    book_id INT NOT NULL,
+    issue_date DATE NOT NULL DEFAULT (CURRENT_DATE),
+    return_date DATE NOT NULL, -- Expected Return Date
+    remarks ENUM('Pending', 'Returned') DEFAULT 'Pending',
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+    FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE
+);
+INSERT INTO book_issues (student_id, book_id, issue_date, return_date)
+VALUES 
+(1, 1, '2025-02-01', '2025-02-10'),
+(2, 2, '2025-02-03', '2025-02-12');
+-------------------------------------------------------------------------------------------
+CREATE TABLE pay_fine (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    payment_status ENUM('Paid', 'Pending') DEFAULT 'Pending',
+    payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+);
+
+INSERT INTO pay_fine (student_id, amount, payment_status) VALUES
+(1, 50.00, 'Pending');
+----------------------------------------------------------------------------------------------
